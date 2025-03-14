@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <spnn id="loading">Loading</spnn>
+        <div id="lineProile" style="display: none;">
+            <img id="lineImage" width="100px" src="https://fastly.picsum.photos/id/203/100/100.jpg?hmac=7UcR5YCixpDxXuPyrCN1UbZPU9-HlBY_Emujoje6inw">
+            <div id="lineName">Hello Name : </div>
+            <div id="lineUID">Line ID : </div>
+            
+            <div id="message">
+                <input type="text" id="lineMessage" placeholder="Enter your text">
+                <button id="sendText" onclick="sendMessage()">Send Message</button>
+            </div>
+
+        </div>
+
+        <button id="logout" onclick="logout()">Logout</button>
+    </div>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.1/axios.min.js" integrity="sha512-m9S8W3a9hhBHPFAbEIaG7J9P92dzcAWwM42VvJp5n1/M599ldK6Z2st2SfJGsX0QR4LfCVr681vyU5vW8d218w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+
+        let userId = '';
+
+        const main = async () => {
+            await liff.init({ liffId: "2007062908-wEkWxPN0" });
+            if (!liff.isLoggedIn()) {
+                liff.login();
+                return false;
+
+            }
+            
+            const profile = await liff.getProfile();
+            
+            loading.style.display = "none";
+
+            // update profile
+            lineImage.src = profile.pictureUrl;
+            lineName.textContent = `Hello Name : ${profile.displayName}`
+            lineUID.textContent = `Line ID :  ${profile.userId}`
+            lineProile.style.display = "block";
+
+
+
+            // console.log("Login success", liff.isLoggedIn());
+            // console.log("Profile :", profile);
+
+            userId = profile.userId;
+            
+            
+        }
+        
+        const logout = async () => {
+            liff.logout();
+            window.location.reload();
+        }
+
+        const sendMessage = async () => {
+            try {
+                
+                console.log(userId, lineMessage.value);
+                
+                if (!lineMessage.value) {
+                    alert("Please enter your message");
+                    return false;
+                }
+                const response = await axios.post("https://243d-2403-6200-8851-81f-9d18-18ab-c522-813f.ngrok-free.app/send-message", {
+                    userId: userId,
+                    messages: lineMessage.value
+                });
+
+                
+
+                console.log(response.data);
+
+            }
+
+            
+            catch (error) {
+                console.error(error);
+            }
+
+            
+
+            // const text = document.getElementById("inputText").value;
+            // liff.sendMessages([{
+            //     type: "text",
+            //     text: text
+            // }]);
+        }
+
+        main();
+    </script>
+</body>
+</html>
